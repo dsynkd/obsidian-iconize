@@ -63,15 +63,17 @@ export default class CustomIconPackSetting extends IconFolderSetting {
   }
 
   public display(): void {
+    // Create header setting with inline controls
     new Setting(this.containerEl)
-      .setName('Add custom icon pack')
-      .setDesc('Add a custom icon pack.')
+      .setName('Icon Packs')
+      .setHeading()
       .addText((text) => {
-        text.setPlaceholder('Your icon pack name');
+        text.setPlaceholder('Icon pack name');
         this.textComponent = text;
       })
       .addButton((btn) => {
-        btn.setButtonText('Add icon pack');
+        btn.setIcon('plus');
+        btn.setTooltip('Add icon pack');
         btn.onClick(async () => {
           const name = this.textComponent.getValue();
           if (name.length === 0) {
@@ -129,7 +131,7 @@ export default class CustomIconPackSetting extends IconFolderSetting {
             new Notice('Error refreshing icon packs. Check console for details.');
           } finally {
             btn.setDisabled(false);
-            btn.setTooltip(originalTooltip || 'Refresh icon packs - scan for missing icons and reload from disk');
+            btn.setTooltip(originalTooltip || 'Refresh icon packs');
           }
         });
       });

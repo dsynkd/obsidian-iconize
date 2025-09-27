@@ -97,11 +97,10 @@ export default class CustomIconRuleSetting extends IconFolderSetting {
   }
 
   public display(): void {
+    // Create header setting with inline controls
     new Setting(this.containerEl)
-      .setName('Add icon rule')
-      .setDesc(
-        'Will add the icon based on the defined rule (as a plain string or in regex format).',
-      )
+      .setName('Custom icon rules')
+      .setHeading()
       .addText((text) => {
         text.onChange((value) => {
           this.chooseIconBtn.setDisabled(value.length === 0);
@@ -116,6 +115,7 @@ export default class CustomIconRuleSetting extends IconFolderSetting {
       .addButton((btn) => {
         btn.setDisabled(true);
         btn.setButtonText('Choose icon');
+        btn.setTooltip('Add icon rule based on the defined pattern');
         btn.onClick(async () => {
           if (this.textComponent.getValue().length === 0) {
             return;
