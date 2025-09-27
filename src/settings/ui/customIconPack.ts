@@ -1,6 +1,6 @@
 import { Notice, Setting, TextComponent } from 'obsidian';
 import IconFolderSetting from './iconFolderSetting';
-import IconizePlugin from '@app/main';
+import IconizePlugin, { FolderIconObject } from '@app/main';
 import { readFileSync } from '@app/util';
 import icon from '@app/lib/icon';
 import { LucideIconPackType } from '../data';
@@ -97,6 +97,40 @@ export default class CustomIconPackSetting extends IconFolderSetting {
           this.textComponent.setValue('');
           this.refreshDisplay();
           new Notice('Icon pack successfully created.');
+        });
+      })
+      .addButton((btn) => {
+        btn.setIcon('refresh-cw');
+        btn.setTooltip('Refresh icon packs');
+        btn.onClick(async () => {
+          btn.setDisabled(true);
+          const originalTooltip = btn.buttonEl.getAttribute('aria-label');
+          btn.setTooltip('Refreshing...');
+          
+          try {
+            new Notice('Refreshing icon packs...');
+            
+            // Run the background check to detect and extract missing icons
+            const data = Object.entries(this.plugin.getData()) as [
+              string,
+              string | FolderIconObject,
+            ][];
+            await icon.checkMissingIcons(this.plugin, data);
+            
+            // Reload all icon packs from disk to update in-memory objects
+            await this.plugin.reloadIconPacks();
+            
+            // Refresh the settings display to show updated icon counts
+            this.refreshDisplay();
+            
+            new Notice('Icon packs refreshed successfully!');
+          } catch (error) {
+            console.error('Error refreshing icon packs:', error);
+            new Notice('Error refreshing icon packs. Check console for details.');
+          } finally {
+            btn.setDisabled(false);
+            btn.setTooltip(originalTooltip || 'Refresh icon packs - scan for missing icons and reload from disk');
+          }
         });
       });
 
