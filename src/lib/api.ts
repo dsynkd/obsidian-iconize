@@ -34,6 +34,11 @@ export default interface IconizeAPI {
    * @param iconNameWithPrefix String that will be used to remove the icon from the icon pack.
    */
   removeIconFromIconPack(iconNameWithPrefix: string): void;
+  /**
+   * Reloads all icon packs from disk to update in-memory objects.
+   * Useful after manually adding SVG files or when background service extracts new icons.
+   */
+  reloadIconPacks(): Promise<void>;
   getIconPacks(): IconPack[];
   util: {
     dom: typeof dom;
@@ -55,6 +60,7 @@ export function getApi(plugin: IconizePlugin): IconizeAPI {
       saveIconToIconPack(plugin, iconNameWithPrefix),
     removeIconFromIconPack: (iconNameWithPrefix) =>
       removeIconFromIconPack(plugin, iconNameWithPrefix),
+    reloadIconPacks: () => plugin.reloadIconPacks(),
     getIconPacks: plugin.getIconPackManager().getIconPacks,
     doesElementHasIconNode: dom.doesElementHasIconNode,
     getIconFromElement: dom.getIconFromElement,

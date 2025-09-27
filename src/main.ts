@@ -132,7 +132,9 @@ export default class IconizePlugin extends Plugin {
     // TODO: Check if needed
     await this.iconPackManager.loadUsedIcons([...usedIconNames]);
 
-    this.app.workspace.onLayoutReady(() => this.handleChangeLayout());
+    this.app.workspace.onLayoutReady(() =>
+      setTimeout(() => this.handleChangeLayout(), 500),
+    );
 
     this.addCommand({
       id: 'iconize:set-icon-for-file',
@@ -410,8 +412,8 @@ export default class IconizePlugin extends Plugin {
             string | FolderIconObject,
           ][];
           await icon.checkMissingIcons(this, data);
-          // TODO: Check if needed
-          // resetPreloadedIcons();
+          // Reload icon packs from disk to update in-memory objects
+          await this.iconPackManager.reloadIconPacksFromDisk();
         }
 
         this.eventEmitter.emit('allIconsLoaded');
@@ -991,5 +993,13 @@ export default class IconizePlugin extends Plugin {
 
   public getIconPackManager(): IconPackManager {
     return this.iconPackManager;
+  }
+
+  /**
+   * Reloads all icon packs from disk. Useful after the background service
+   * extracts new icons or when manually adding SVG files.
+   */
+  public async reloadIconPacks(): Promise<void> {
+    await this.iconPackManager.reloadIconPacksFromDisk();
   }
 }

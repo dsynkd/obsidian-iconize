@@ -128,46 +128,6 @@ const checkMissingIcons = async (
       10000,
     );
   }
-
-  // Remove all icon files that can not be found in the data.
-  for (const iconPack of plugin.getIconPackManager().getIconPacks()) {
-    // Checks if the icon pack exists.
-    const doesIconPackExist = await plugin.app.vault.adapter.exists(
-      `${plugin.getIconPackManager().getPath()}/${iconPack.getName()}`,
-    );
-    if (!doesIconPackExist) {
-      continue;
-    }
-
-    const iconFiles = await plugin.app.vault.adapter.list(
-      `${plugin.getIconPackManager().getPath()}/${iconPack.getName()}`,
-    );
-
-    for (const iconFilePath of iconFiles.files) {
-      const iconNameWithExtension = iconFilePath.split('/').pop();
-      // Removes the file extension.
-      const iconName = iconNameWithExtension?.substring(
-        0,
-        iconNameWithExtension.length - 4,
-      );
-
-      const iconNameWithPrefix = iconPack.getPrefix() + iconName;
-      const doesIconExist = allIcons.get(iconNameWithPrefix);
-      if (!doesIconExist) {
-        const path = `${plugin.getIconPackManager().getPath()}/${iconPack.getName()}/${iconName}.svg`;
-        const doesPathExist = await plugin.app.vault.adapter.exists(path);
-        if (doesPathExist) {
-          logger.info(
-            `Removing icon with path '${path}' because it is not used anymore`,
-          );
-          // Removes the icon file.
-          await plugin.app.vault.adapter.remove(
-            `${plugin.getIconPackManager().getPath()}/${iconPack.getName()}/${iconName}.svg`,
-          );
-        }
-      }
-    }
-  }
 };
 
 /**

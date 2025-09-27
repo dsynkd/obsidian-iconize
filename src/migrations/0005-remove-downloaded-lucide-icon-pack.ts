@@ -6,7 +6,9 @@ export default async function migrate(plugin: IconizePlugin): Promise<void> {
     const iconPack = plugin
       .getIconPackManager()
       .getIconPackByName(LUCIDE_ICON_PACK_NAME);
-    await plugin.getIconPackManager().removeIconPack(iconPack);
+    if (iconPack) {
+      await plugin.getIconPackManager().removeIconPack(iconPack);
+    }
     plugin.getSettings().migrated++;
   }
 }

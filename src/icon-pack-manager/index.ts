@@ -405,4 +405,47 @@ export class IconPackManager {
   public getFileManager(): FileManager {
     return this.fileManager;
   }
+
+  /**
+   * Reloads icons from disk for all icon packs that have directories.
+   * This is useful after the background service extracts new SVG files.
+   */
+  public async reloadIconPacksFromDisk(): Promise<void> {
+    const loadedIconPacks = await this.plugin.app.vault.adapter.list(this.path);
+
+    // Reload custom icon packs (directories)
+    for (let i = 0; i < loadedIconPacks.folders.length; i++) {
+      const folderName = loadedIconPacks.folders[i].split('/').pop();
+      const existingIconPack = this.getIconPackByName(folderName);
+
+      if (!existingIconPack || !existingIconPack.getName()) {
+        continue;
+      }
+
+      // Get all SVG files in the directory
+      const files = await this.fileManager.getFilesInDirectory(
+        `${this.path}/${folderName}`,
+      );
+      const loadedIcons: Icon[] = [];
+
+      // Convert files into loaded svgs
+      for (let j = 0; j < files.length; j++) {
+        const iconNameRegex = files[j].match(
+          new RegExp(this.path + '/' + folderName + '/(.*)'),
+        );
+        const iconName = getNormalizedName(iconNameRegex[1]);
+        const iconContent = await this.plugin.app.vault.adapter.read(files[j]);
+        const icon = generateIcon(existingIconPack, iconName, iconContent);
+        if (icon) {
+          loadedIcons.push(icon);
+        }
+      }
+
+      // Update the icon pack with the newly loaded icons
+      existingIconPack.setIcons(loadedIcons);
+      logger.info(
+        `Reloaded icon pack '${folderName}' (amount of icons: ${loadedIcons.length})`,
+      );
+    }
+  }
 }
